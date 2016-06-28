@@ -1,8 +1,9 @@
 extern crate gtk;
 extern crate gdk;
+extern crate image;
 
 use gtk::prelude::*;
-use gtk::{Window, Button, Builder, WindowType, Label, Image, Fixed};
+use gtk::{Window, Button, Builder, WindowType, Label, Image, Fixed, EventBox};
 use std::path::Path;
 use std::ffi::OsStr;
 use std::fs;
@@ -16,10 +17,28 @@ fn main() {
         return;
     }
 
-    let paths = fs::read_dir("./").unwrap();
+    //ensure path is a file? traitbound error 
+    let paths: fs::ReadDir = fs::read_dir("./").unwrap();
+    let mut images = Vec::<image::DynamicImage>::new();
+    for rde in paths { //Result<DirEntry>
+        match rde {
+            Ok(de) => {
+                let path = de.path();
+                println!("Name: {}", de.path().display());
+                if path.is_file() {
+                    let ir = image::open(de.path());
+                    match ir { //ImageResult<DynamicImage>
+                        Ok(dr) => {
+                            images.push(dr);
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            Err(_) => {}
+        }
+        //todo get dimensions from image?
 
-    for path in paths {
-        println!("Name: {}", path.unwrap().path().display())
     }
 
     // todo
@@ -34,6 +53,10 @@ fn main() {
     let button_ok: Button = builder.get_object("button_ok").unwrap();
     let label_test: Label = builder.get_object("label_status").unwrap();
     let main_fixed: Fixed = builder.get_object("main_fixed").unwrap();
+
+    //for i in image { main_fixed.add }
+    //
+    //mainfirefxed.on_resize ? window.onresize?
 
     button_ok.connect_clicked(move |_| {
         label_test.set_text("test");

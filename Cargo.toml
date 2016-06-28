@@ -6,3 +6,4 @@ authors = ["887"]
 [dependencies]
 gtk = { version = "0.1.0", features = ["v3_16"] }
 gdk = { version = "0.5.0" }
+image = "*"
