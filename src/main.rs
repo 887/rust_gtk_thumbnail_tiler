@@ -4,28 +4,25 @@ extern crate image;
 
 use gtk::prelude::*;
 use gtk::{Window, Button, Builder, WindowType, Label, Image, Fixed, EventBox};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::ffi::OsStr;
-use std::fs;
+use std::fs::*;
 use gdk::enums::key;
+use image::{DynamicImage};
+//use std::io::*;
 
-static ALPHABET: &'static str = "jpg;png;gif;tiff;bmp;jpg-large;jpeg";
+//should not be static but a parsed vec
+static ENDINGS: &'static str = "jpg;png;gif;tiff;bmp;jpg-large;jpeg";
 
-fn main() {
-    if gtk::init().is_err() {
-        println!("Failed to initialize GTK.");
-        return;
-    }
-
-    //ensure path is a file? traitbound error 
-    let paths: fs::ReadDir = fs::read_dir("./").unwrap();
-    let mut images = Vec::<image::DynamicImage>::new();
-    for rde in paths { //Result<DirEntry>
+fn get_images(path: &str, endings: Vec<&str>) -> Vec<DynamicImage> {
+    //ensure path is a file? traitbound error
+    let paths = read_dir(path).unwrap();
+    paths.fold(Vec::<DynamicImage>::new(), |mut images, rde| { //Result<DirEntry>
         match rde {
             Ok(de) => {
-                let path = de.path();
+                let path: PathBuf = de.path();
                 println!("Name: {}", de.path().display());
-                if path.is_file() {
+                if path.is_file() && endings.iter().any(|e| path.ends_with(e))  {
                     let ir = image::open(de.path());
                     match ir { //ImageResult<DynamicImage>
                         Ok(dr) => {
@@ -37,10 +34,20 @@ fn main() {
             }
             Err(_) => {}
         }
+        images
         //todo get dimensions from image?
+    })
+}
 
+fn main() {
+    if gtk::init().is_err() {
+        println!("Failed to initialize GTK.");
+        return;
     }
 
+    let endings: Vec<&str> = ENDINGS.split(";").collect();
+
+    let images = get_images("./", endings);
     // todo
     // let default_folder = env::
 
