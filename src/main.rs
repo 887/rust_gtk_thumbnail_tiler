@@ -14,8 +14,8 @@ use image::{DynamicImage};
 //should not be static but a parsed vec
 static ENDINGS: &'static str = "jpg;png;gif;tiff;bmp;jpg-large;jpeg";
 
+//ensure path is a file? traitbound error
 fn get_images(path: &str, endings: Vec<&str>) -> Vec<DynamicImage> {
-    //ensure path is a file? traitbound error
     let paths = read_dir(path).unwrap();
     paths.fold(Vec::<DynamicImage>::new(), |mut images, rde| { //Result<DirEntry>
         match rde {
@@ -35,7 +35,6 @@ fn get_images(path: &str, endings: Vec<&str>) -> Vec<DynamicImage> {
             Err(_) => {}
         }
         images
-        //todo get dimensions from image?
     })
 }
 
@@ -51,10 +50,11 @@ fn main() {
     // todo
     // let default_folder = env::
 
-    let builder = Builder::new_from_string(include_str!("./TestApp.glade"));
+    let builder = Builder::new_from_string(include_str!("./ui.glade"));
 
-    let window: Window = builder.get_object("main").unwrap();
-    window.set_title("First GTK+ Program");
+    let main_window: Window = builder.get_object("main").unwrap();
+    let otions_windows: Window = builder.get_object("options").unwrap();
+    main_window.set_title("First GTK+ Program");
 
     let button_cancel: Button = builder.get_object("button_cancel").unwrap();
     let button_ok: Button = builder.get_object("button_ok").unwrap();
@@ -63,7 +63,7 @@ fn main() {
 
     //for i in image { main_fixed.add }
     //
-    //mainfirefxed.on_resize ? window.onresize?
+    //mainfirefxed.on_resize ? main_window.onresize?
 
     button_ok.connect_clicked(move |_| {
         label_test.set_text("test");
@@ -74,17 +74,17 @@ fn main() {
         std::process::exit(0);
     });
 
-    window.connect_delete_event(|_, _| {
+    main_window.connect_delete_event(|_, _| {
         gtk::main_quit();
         Inhibit(false)
     });
 
-    window.connect_key_press_event(move |_, key| {
+    main_window.connect_key_press_event(move |_, key| {
         if let key::Escape = key.get_keyval() { gtk::main_quit() }
         gtk::Inhibit(false)
     });
 
-    window.show_all();
+    main_window.show_all();
 
     gtk::main();
 }
