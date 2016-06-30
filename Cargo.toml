@@ -1,9 +1,15 @@
 [package]
+authors = ["887"]
 name = "rust_gtk_thumbnail_tiler"
 version = "0.1.0"
-authors = ["887"]
 
 [dependencies]
-gtk = { version = "0.1.0", features = ["v3_16"] }
-gdk = { version = "0.5.0" }
 image = "*"
+tomllib = "0.1.2"
+
+[dependencies.gdk]
+version = "0.5.0"
+
+[dependencies.gtk]
+features = ["v3_16"]
+version = "0.1.0"
