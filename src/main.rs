@@ -13,61 +13,16 @@ use std::fs::File;
 use gdk::enums::key;
 use gdk::Event;
 use image::DynamicImage;
-use std::io::*;
-use tomllib::TOMLParser;
-use tomllib::types::Value;
 
-//example: https://github.com/gtk-rs/examples/blob/master/src/simple_treeview.rs
+mod options;
 
-static ENDINGS: &'static str = "jpg;png;gif;tiff;bmp;jpg-large;jpeg";
-static OPTIONS_FILE_NAME: &'static str = ".rust_gtk_thumbnailer.conf.toml";
+use options::*;
 
-struct RustThumbnailTilerOptions {
-    default_folder: String,
-    endings: String,
-}
-
-impl RustThumbnailTilerOptions {
-    fn new() -> Self {
-        RustThumbnailTilerOptions {
-            default_folder: "~/Pictures".to_string(), // read from commandline param
-            endings: ENDINGS.to_string(),
-        }
-    }
-    fn parse(&mut self, mut toml_doc: String) {
-        let parser = TOMLParser::new();
-        let (mut parser, result) = parser.parse(&toml_doc);
- 
-        //parse options provide default value
-        parser.get_value("table.SomeKey"); // gets "Some Value"
-        parser.set_value("table.\"A Key\"", Value::float(9.876));
-        parser.set_value("table.SomeKey", Value::bool(false));
-            
-        parser.get_value("");
-    }
-}
-
-// toml parser?!?
-fn load_options_toml() -> RustThumbnailTilerOptions {
-    let options_file_name: &str = &("~/".to_string() + OPTIONS_FILE_NAME);
-    let mut options = RustThumbnailTilerOptions::new();
-    match File::open(&Path::new(options_file_name)) {
-        Err(e) => options,
-        Ok(mut f) => {
-            let mut buf = String::new();
-            match f.read_to_string(&mut buf) {
-                Err(e) => options,
-                Ok(_) => {
-                    options.parse(buf);
-                    options
-                }
-            }
-        }
-    }
-}
+// example: https://github.com/gtk-rs/examples/blob/master/src/simple_treeview.rs
 
 // ensure path is a file? traitbound error
 fn get_images(path: &str, endings: Vec<&str>) -> Vec<DynamicImage> {
+    println!("getting images from {} \n", path);
     let paths = fs::read_dir(path).unwrap();
     paths.fold(Vec::<DynamicImage>::new(), |mut images, rde| {
         // Result<DirEntry>
@@ -110,14 +65,14 @@ fn main() {
     let main_menu_bar: MenuBar = builder.get_object("main_menu_bar").unwrap();
     let places_sidebar: PlacesSidebar = builder.get_object("main_places_sidebar").unwrap();
 
-    //places_sidebar.connect(gtk::signals::GtkPlacesSidebar::open::new(||{
-        //if e.get_event_type() == PlacesSidebar::open_location {
-        //}
-        //gtk::Inhibit(false)
-    //});
+    // places_sidebar.connect(gtk::signals::GtkPlacesSidebar::open::new(||{
+    // if e.get_event_type() == PlacesSidebar::open_location {
+    // }
+    // gtk::Inhibit(false)
+    // });
 
-    //places_sidebar.connect_event(move |e|{
-    //});
+    // places_sidebar.connect_event(move |e|{
+    // });
     // main_window.set_title("First GTK+ Program");
 
     let button_cancel: Button = builder.get_object("options_button_cancel").unwrap();
