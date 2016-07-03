@@ -13,6 +13,7 @@ use std::fs::File;
 use gdk::enums::key;
 use gdk::Event;
 use image::DynamicImage;
+use std::env;
 
 mod options;
 
@@ -21,8 +22,8 @@ use options::*;
 // example: https://github.com/gtk-rs/examples/blob/master/src/simple_treeview.rs
 
 // ensure path is a file? traitbound error
-fn get_images(path: &str, endings: Vec<&str>) -> Vec<DynamicImage> {
-    println!("getting images from {} \n", path);
+fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<DynamicImage> {
+    println!("getting images from {} \n", path.to_str().unwrap());
     let paths = fs::read_dir(path).unwrap();
     paths.fold(Vec::<DynamicImage>::new(), |mut images, rde| {
         // Result<DirEntry>
@@ -56,7 +57,9 @@ fn main() {
     let options = load_options_toml();
 
     let endings: Vec<&str> = options.endings.split(";").collect();
-    let images = get_images(&options.default_folder, endings);
+
+    // todo: read from commandline param
+    let images = get_images(options.default_folder_path, endings);
 
     let builder = Builder::new_from_string(include_str!("./ui.glade"));
 
