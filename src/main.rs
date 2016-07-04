@@ -21,7 +21,6 @@ use options::*;
 
 // example: https://github.com/gtk-rs/examples/blob/master/src/simple_treeview.rs
 
-// ensure path is a file? traitbound error
 fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<DynamicImage> {
     println!("getting images from {} \n", path.to_str().unwrap());
     let paths = fs::read_dir(path).unwrap();
@@ -76,7 +75,7 @@ fn main() {
 
     // places_sidebar.connect_event(move |e|{
     // });
-    // main_window.set_title("First GTK+ Program");
+    // main_window.set_title(".");
 
     let button_cancel: Button = builder.get_object("options_button_cancel").unwrap();
     let button_ok: Button = builder.get_object("options_button_ok").unwrap();
@@ -86,6 +85,10 @@ fn main() {
     // for i in image { main_fixed.add }
     //
     // mainfirefxed.on_resize ? main_window.onresize?
+
+    //main_fixed.connect_size_allocate(move |_ , _| {
+
+    //});
 
     button_ok.connect_clicked(move |_| {
         label_test.set_text("test");
