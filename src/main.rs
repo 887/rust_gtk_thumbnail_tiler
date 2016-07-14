@@ -2,40 +2,52 @@ extern crate gtk;
 extern crate gdk;
 extern crate image;
 extern crate tomllib;
+extern crate threadpool;
 
+//use threadpool::ThreadPool;
 use gtk::prelude::*;
-use gtk::{Window, Button, Builder, WindowType, Label, Image, Fixed, EventBox, MenuBar,
-          PlacesSidebar};
-use std::path::{PathBuf, Path};
-use std::ffi::OsStr;
+use gtk::{Window, Button, Builder,MenuBar, Label, Fixed, PlacesSidebar};
+//use gtk::{Image, EventBox, };
+use std::path::{PathBuf};
+//use std::fs::File;
+//use std::ffi::OsStr;
 use std::fs;
-use std::fs::File;
 use gdk::enums::key;
-use gdk::Event;
-use image::DynamicImage;
-use std::env;
+//use gdk::Event;
+use image::*;
+//use std::env;
+//use std::sync::{Arc, Mutex};
+//use std::sync::mpsc;
 
 mod options;
 
 use options::*;
 
-// example: https://github.com/gtk-rs/examples/blob/master/src/simple_treeview.rs
+//let pool = ThreadPool::new(8);
 
-fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<DynamicImage> {
+//pool.execute(move || {
+//count_frequency_for_word(&sequence, &mut worker_hash_map.lock().unwrap());
+//match tx.send(current_index) {
+//Err(mpsc::SendError(index)) => { println!("Error on worker {}: {}", index, sequence) },
+//_ => {}
+//}
+
+fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<(PathBuf, DynamicImage)> {
     println!("getting images from {} \n", path.to_str().unwrap());
     let paths = fs::read_dir(path).unwrap();
-    paths.fold(Vec::<DynamicImage>::new(), |mut images, rde| {
+    paths.fold(Vec::<(PathBuf,DynamicImage)>::new(), |mut images, rde| {
         // Result<DirEntry>
         match rde {
             Ok(de) => {
                 let path: PathBuf = de.path();
                 println!("Name: {}", de.path().display());
                 if path.is_file() && endings.iter().any(|e| path.ends_with(e)) {
+                    println!("is a file and has correct extenson"); 
                     let ir = image::open(de.path());
                     match ir { //ImageResult<DynamicImage>
-                        Ok(dr) => {
+                        Ok(di) => {
                             // todo get dimensions from image?
-                            images.push(dr);
+                            images.push((path, di));
                         }
                         _ => {}
                     }
@@ -46,7 +58,7 @@ fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<DynamicImage> {
         images
     })
 }
-
+//http://bit.ly/29Jcf0A
 fn main() {
     if gtk::init().is_err() {
         println!("Failed to initialize GTK.");
@@ -56,9 +68,25 @@ fn main() {
     let options = load_options_toml();
 
     let endings: Vec<&str> = options.endings.split(";").collect();
+    //let file_endings = endings.iter().fold(String::new(),|mut res, e|{
+        //res = res + e;
+        //res
+    //});
+    let file_endings = endings.join(",");
+    println!("allowed endings: {}", file_endings);
 
+    //get image sin seperate thread and join them later through a
     // todo: read from commandline param
-    let images = get_images(options.default_folder_path, endings);
+    let images: Vec<(PathBuf, DynamicImage)> = get_images(options.default_folder_path, endings);
+    println!("found {} images!", images.len());
+    for (pb, di) in images {
+        //let idc: ImageDecoder = di;
+        let (width, height) = di.dimensions();
+        let str_path: &str = pb.to_str().unwrap();
+        println!("found image: {}, width: {}, height: {}", str_path, width, height);
+    }
+    //let mut handles = Vec::<JoinHandle<HashMap<char, usize>>>::new();
+
 
     let builder = Builder::new_from_string(include_str!("./ui.glade"));
 
@@ -73,9 +101,9 @@ fn main() {
     // gtk::Inhibit(false)
     // });
 
-    // places_sidebar.connect_event(move |e|{
-    // });
-    // main_window.set_title(".");
+     //places_sidebar.connect_event(move |e|{
+     //});
+     main_window.set_title(".");
 
     let button_cancel: Button = builder.get_object("options_button_cancel").unwrap();
     let button_ok: Button = builder.get_object("options_button_ok").unwrap();

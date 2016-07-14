@@ -32,7 +32,7 @@ impl RustThumbnailTilerOptions {
     }
     pub fn parse(&mut self, toml_doc: String) {
         let parser = TOMLParser::new();
-        let (mut parser, result) = parser.parse(&toml_doc);
+        let (mut parser, _) = parser.parse(&toml_doc);
 
         // parse options provide default value
         parser.get_value("table.SomeKey"); // gets "Some Value"
@@ -50,7 +50,7 @@ pub fn load_options_toml() -> RustThumbnailTilerOptions {
         Ok(mut f) => {
             let mut buf = String::new();
             match f.read_to_string(&mut buf) {
-                Err(e) => options,
+                Err(_) => options,
                 Ok(_) => {
                     options.parse(buf);
                     options
