@@ -41,15 +41,19 @@ fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<(PathBuf, DynamicImage)>
             Ok(de) => {
                 let path: PathBuf = de.path();
                 println!("Name: {}", de.path().display());
-                if path.is_file() && endings.iter().any(|e| path.ends_with(e)) {
-                    println!("is a file and has correct extenson"); 
-                    let ir = image::open(de.path());
-                    match ir { //ImageResult<DynamicImage>
-                        Ok(di) => {
-                            // todo get dimensions from image?
-                            images.push((path, di));
+                if path.is_file() {
+                    println!("..is a file.."); 
+                    //let extensio path.extension()
+                    if endings.iter().any(|e| path.ends_with(e)) { 
+                        println!("..and has correct extenson"); 
+                        let ir = image::open(de.path());
+                        match ir { //ImageResult<DynamicImage>
+                            Ok(di) => {
+                                // todo get dimensions from image?
+                                images.push((path, di));
+                            }
+                            _ => {}
                         }
-                        _ => {}
                     }
                 }
             }
