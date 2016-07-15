@@ -10,7 +10,7 @@ use gtk::{Window, Button, Builder,MenuBar, Label, Fixed, PlacesSidebar};
 //use gtk::{Image, EventBox, };
 use std::path::{PathBuf};
 //use std::fs::File;
-//use std::ffi::OsStr;
+use std::ffi::OsStr;
 use std::fs;
 use gdk::enums::key;
 //use gdk::Event;
@@ -32,10 +32,10 @@ use options::*;
 //_ => {}
 //}
 
-fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<(PathBuf, DynamicImage)> {
+fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<PathBuf> {
     println!("getting images from {} \n", path.to_str().unwrap());
     let paths = fs::read_dir(path).unwrap();
-    paths.fold(Vec::<(PathBuf,DynamicImage)>::new(), |mut images, rde| {
+    paths.fold(Vec::<PathBuf>::new(), |mut images, rde| {
         // Result<DirEntry>
         match rde {
             Ok(de) => {
@@ -43,17 +43,11 @@ fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<(PathBuf, DynamicImage)>
                 println!("Name: {}", de.path().display());
                 if path.is_file() {
                     println!("..is a file.."); 
-                    //let extensio path.extension()
-                    if endings.iter().any(|e| path.ends_with(e)) { 
+                    let extension: &OsStr = path.extension().unwrap();
+                    let extension_str: &str = extension.to_str().unwrap();
+                    if endings.iter().any(|e| extension_str.ends_with(e)) { 
                         println!("..and has correct extenson"); 
-                        let ir = image::open(de.path());
-                        match ir { //ImageResult<DynamicImage>
-                            Ok(di) => {
-                                // todo get dimensions from image?
-                                images.push((path, di));
-                            }
-                            _ => {}
-                        }
+                        images.push(path.clone());
                     }
                 }
             }
@@ -81,16 +75,20 @@ fn main() {
 
     //get image sin seperate thread and join them later through a
     // todo: read from commandline param
-    let images: Vec<(PathBuf, DynamicImage)> = get_images(options.default_folder_path, endings);
+    let images: Vec<PathBuf> = get_images(options.default_folder_path, endings);
     println!("found {} images!", images.len());
-    for (pb, di) in images {
-        //let idc: ImageDecoder = di;
-        let (width, height) = di.dimensions();
-        let str_path: &str = pb.to_str().unwrap();
-        println!("found image: {}, width: {}, height: {}", str_path, width, height);
-    }
-    //let mut handles = Vec::<JoinHandle<HashMap<char, usize>>>::new();
+    for pb in images {
 
+        let ir = image::open(pb.clone());
+        match ir { //ImageResult<DynamicImage>
+            Ok(di) => {
+                let (width, height) = di.dimensions();
+                let str_pb = pb.to_str().unwrap();
+                println!("found image: {}, width: {}, height: {}", str_pb, width, height);
+            }
+            _ => {}
+        }
+    }
 
     let builder = Builder::new_from_string(include_str!("./ui.glade"));
 
