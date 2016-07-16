@@ -56,6 +56,7 @@ fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<PathBuf> {
         images
     })
 }
+
 //http://bit.ly/29Jcf0A
 fn main() {
     if gtk::init().is_err() {
@@ -89,6 +90,8 @@ fn main() {
             _ => {}
         }
     }
+    //let mut handles = Vec::<JoinHandle<HashMap<char, usize>>>::new();
+
 
     let builder = Builder::new_from_string(include_str!("./ui.glade"));
 
