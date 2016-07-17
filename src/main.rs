@@ -23,10 +23,8 @@ mod options;
 
 use options::*;
 
-
-
-
 //let pool = ThreadPool::new(8);
+
 //pool.execute(move || {
 //count_frequency_for_word(&sequence, &mut worker_hash_map.lock().unwrap());
 //match tx.send(current_index) {
@@ -90,7 +88,6 @@ fn main() {
             _ => {}
         }
     }
-    //let mut handles = Vec::<JoinHandle<HashMap<char, usize>>>::new();
 
     let builder = Builder::new_from_string(include_str!("./ui.glade"));
 
