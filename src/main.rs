@@ -23,8 +23,10 @@ mod options;
 
 use options::*;
 
-//let pool = ThreadPool::new(8);
 
+
+
+//let pool = ThreadPool::new(8);
 //pool.execute(move || {
 //count_frequency_for_word(&sequence, &mut worker_hash_map.lock().unwrap());
 //match tx.send(current_index) {
@@ -36,17 +38,16 @@ fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<PathBuf> {
     println!("getting images from {} \n", path.to_str().unwrap());
     let paths = fs::read_dir(path).unwrap();
     paths.fold(Vec::<PathBuf>::new(), |mut images, rde| {
-        // Result<DirEntry>
         match rde {
             Ok(de) => {
                 let path: PathBuf = de.path();
                 println!("Name: {}", de.path().display());
                 if path.is_file() {
-                    println!("..is a file.."); 
+                    println!("..is a file..");
                     let extension: &OsStr = path.extension().unwrap();
                     let extension_str: &str = extension.to_str().unwrap();
-                    if endings.iter().any(|e| extension_str.ends_with(e)) { 
-                        println!("..and has correct extenson"); 
+                    if endings.iter().any(|e| extension_str.ends_with(e)) {
+                        println!("..and has correct extenson");
                         images.push(path.clone());
                     }
                 }
@@ -57,7 +58,6 @@ fn get_images(path: PathBuf, endings: Vec<&str>) -> Vec<PathBuf> {
     })
 }
 
-//http://bit.ly/29Jcf0A
 fn main() {
     if gtk::init().is_err() {
         println!("Failed to initialize GTK.");
@@ -91,7 +91,6 @@ fn main() {
         }
     }
     //let mut handles = Vec::<JoinHandle<HashMap<char, usize>>>::new();
-
 
     let builder = Builder::new_from_string(include_str!("./ui.glade"));
 
